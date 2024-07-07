@@ -7,11 +7,11 @@ class KEIYHLEY_2182():
         self.inst.write("*RST")
 
     # channel (ch): 1/2
-    # range: 
+    # range: 0 ~ 120
     def set_range(self, ch=1, rng=":AUTO ON"):
         # self.inst.write(":SENS:CHAN " + str(ch))
         # self.inst.write(":SENS:FUNC " + "VOLT")
-        if rng.isdigit():
+        if isinstance(rng, (int, float)):
             rng = ':UPP ' + str(rng)
         self.inst.write(":SENS:VOLT:CHAN" + str(ch) + ":RANG" + rng)
         
@@ -24,15 +24,16 @@ class KEIYHLEY_2182():
         # self.inst.write(":SENS:CHAN " + str(ch))
         # self.inst.write(":SENS:FUNC " + "TEMP")
         self.inst.write(":SENS:TEMP:TRAN " + sensor)
-        if ref.isdigit():
-            self.inst.write(":SENS:TEMP:RJUN:RSEL: SIM")
+        if isinstance(ref, (int, float)):
+            self.inst.write(":SENS:TEMP:RJUN:RSEL SIM")
             self.inst.write(":SENS:TEMP:RJUN:SIM " + str(ref))
         else:
             self.inst.write(":SENS:TEMP:RJUN:RSEL " + ref)
-        self.inst.write(":SENS:TEMP:TC: " + tco)
-        self.inst.write(":SENS:UNIT:TEMP: " + uint)
+        self.inst.write(":SENS:TEMP:TC " + tco)
+        self.inst.write(":UNIT:TEMP " + uint)
         
     # channel (ch): 1/2
+    # func: VOLT / TEMP
     # a_status: analog filter status, True (ON) / False (OFF)
     # d_status: digital filter status, True (ON) / False (OFF)
     # count: 0 ~ 100
@@ -42,22 +43,22 @@ class KEIYHLEY_2182():
     # nplc: 0.01 ~ 50 (for 50Hz) / 0.01 ~ 60 (for 60Hz)
     # timeout unit: milliseconds
     # Note: Changing function or range causes the Filter to reset.
-    def set_measure_parameter(self, ch=1, func="VOLT", a_status=False, d_status=False, count=10, type="MOV", window=0.01, auto_zero=False, nplc=5):
+    def set_measure_parameter(self, ch=1, func="VOLT", a_status=False, d_status=False, count=10, f_type="MOV", window=0.01, auto_zero=False, nplc=5, timeout=5000):
         status = {True: "ON", False: "OFF"}
         root = ":SENS:" + func + ":CHAN" + str(ch)
         self.inst.write(root + ":DFIL:COUNt " + str(count))
-        self.inst.write(root + ":DFIL:TCON " + type)
+        self.inst.write(root + ":DFIL:TCON " + f_type)
         self.inst.write(root + ":DFIL:WIND " + str(window))
         self.inst.write(root + ":LPAS " + status[a_status])
         self.inst.write(root + ":DFIL " + status[d_status])
         self.inst.write(":SENS:" + func + ":NPLC " + str(nplc))
-        self.inst.write(":SYST:AZER " + status[auto_zero])       
+        self.inst.write(":SYST:AZER " + status[auto_zero])   
+        self.inst.timeout = timeout    
     
     # channel (ch): 1/2
     # func: VOLT / TEMP
-    def select_measure(self, func="VOLT", ch=1, timeout=5000):
-        self.inst.timeout = timeout
-        self.inst.write(":SENS:FUNC " + func)
+    def select_measure(self, func="VOLT", ch=1):
+        self.inst.write(":SENS:FUNC " + "'" + func + "'")
         self.inst.write(":SENS:CHAN " + str(ch))
 
     # return unit: volt (func="VOLT") / C,F or K (func="TEMP")
@@ -106,3 +107,8 @@ if __name__ == "__main__":
     print(rm.list_resources())
 
     keiythley_2182 = KEIYHLEY_2182('GPIB0::1::INSTR')
+    keiythley_2182.set_range()
+    keiythley_2182.set_tco()
+    keiythley_2182.select_measure()
+    keiythley_2182.set_measure_parameter()
+    keiythley_2182.act_measure()
