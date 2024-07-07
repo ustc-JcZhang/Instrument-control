@@ -54,11 +54,14 @@ class KEIYHLEY_2182():
         self.inst.write(":SYST:AZER " + status[auto_zero])       
     
     # channel (ch): 1/2
-    # return unit: volt
-    def act_measure(self, func="VOLT", ch=1, timeout=5000) -> float:
+    # func: VOLT / TEMP
+    def select_measure(self, func="VOLT", ch=1, timeout=5000):
         self.inst.timeout = timeout
         self.inst.write(":SENS:FUNC " + func)
         self.inst.write(":SENS:CHAN " + str(ch))
+
+    # return unit: volt (func="VOLT") / C,F or K (func="TEMP")
+    def act_measure(self) -> float:
         volt = self.inst.query(":READ?")
         return float(volt)
 
