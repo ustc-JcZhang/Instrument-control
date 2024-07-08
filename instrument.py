@@ -7,12 +7,12 @@ class KEIYHLEY_2182():
         self.inst.write("*RST")
 
     # channel (ch): 1/2
-    # range: 0 ~ 120
-    def set_range(self, ch=1, rng=":AUTO ON"):
-        # self.inst.write(":SENS:CHAN " + str(ch))
-        # self.inst.write(":SENS:FUNC " + "VOLT")
+    # range (rng): 0 ~ 120
+    def set_range(self, ch=1, rng="AUTO"):
         if isinstance(rng, (int, float)):
-            rng = ':UPP ' + str(rng)
+            rng = ":UPP " + str(rng)
+        else:
+            rng = ":AUTO ON"
         self.inst.write(":SENS:VOLT:CHAN" + str(ch) + ":RANG" + rng)
         
     # channel (ch): 1/2
@@ -21,8 +21,6 @@ class KEIYHLEY_2182():
     # tco: J / K / T / E / N / S / R / B
     # uint: C / F / K
     def set_tco(self, sensor="TC", ref="INT", tco="J", uint="C"):
-        # self.inst.write(":SENS:CHAN " + str(ch))
-        # self.inst.write(":SENS:FUNC " + "TEMP")
         self.inst.write(":SENS:TEMP:TRAN " + sensor)
         if isinstance(ref, (int, float)):
             self.inst.write(":SENS:TEMP:RJUN:RSEL SIM")
