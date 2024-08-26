@@ -19,8 +19,8 @@ class KEIYHLEY_2182():
     # sensor: TC / INT
     # ref: INT / 0 ~ 60
     # tco: J / K / T / E / N / S / R / B
-    # uint: C / F / K
-    def set_tco(self, sensor="TC", ref="INT", tco="J", uint="C"):
+    # unit: C / F / K
+    def set_tco(self, sensor="TC", ref="INT", tco="J", unit="C"):
         self.inst.write(":SENS:TEMP:TRAN " + sensor)
         if isinstance(ref, (int, float)):
             self.inst.write(":SENS:TEMP:RJUN:RSEL SIM")
@@ -28,7 +28,7 @@ class KEIYHLEY_2182():
         else:
             self.inst.write(":SENS:TEMP:RJUN:RSEL " + ref)
         self.inst.write(":SENS:TEMP:TC " + tco)
-        self.inst.write(":UNIT:TEMP " + uint)
+        self.inst.write(":UNIT:TEMP " + unit)
         
     # channel (ch): 1/2
     # func: VOLT / TEMP
