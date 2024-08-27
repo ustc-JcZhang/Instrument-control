@@ -11,14 +11,19 @@ class Thermocouple:
         self.cp_type = cp_type
         self.ref_tmp = ref_tmp
 
-    def get_temperature(self, volt):
+    def get_temperature(self, volt, unit='C'):
         volt = self.__correct(volt)
         if self.cp_type == 'T':
             if volt < 0:
                 poly_func = np.poly1d(np.flipud(TCOE_BELOW0))
             else:
                 poly_func = np.poly1d(np.flipud(TCOE_ABOVE0))
-        return poly_func(volt)
+        tmp = poly_func(volt)
+
+        if unit == 'C':
+            return tmp
+        elif unit == 'K':
+            return tmp + 273.15
 
     def __get_voltage(self, tmp):
         if self.cp_type == 'T':
@@ -44,12 +49,12 @@ if __name__ == '__main__':
     tmp = np.zeros(len(volt))
     tc_1 = Thermocouple('T', 0)
     for i in range(len(volt)):
-        tmp[i] = tc_1.get_temperature(volt[i])
+        tmp[i] = tc_1.get_temperature(volt[i], 'C')
     plt.plot(volt, tmp)
 
     tc_2 = Thermocouple('T', 100)
     for i in range(len(volt)):
-        tmp[i] = tc_2.get_temperature(volt[i])
+        tmp[i] = tc_2.get_temperature(volt[i], 'C')
     plt.plot(volt, tmp)
 
     plt.xlabel('Voltage (uV)') 
