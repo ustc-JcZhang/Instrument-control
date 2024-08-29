@@ -1,6 +1,6 @@
 import pyvisa
 
-class KEIYHLEY_2182():
+class KEITHLEY_2182():
     def __init__(self, resource_name):
         rm = pyvisa.ResourceManager()
         self.inst = rm.open_resource(resource_name)
@@ -72,7 +72,7 @@ class KEIYHLEY_2182():
         return ret
 
 
-class KEIYHLEY_6221():
+class KEITHLEY_6221():
     def __init__(self, resource_name) -> None:
         rm = pyvisa.ResourceManager()
         self.inst = rm.open_resource(resource_name)
@@ -94,19 +94,44 @@ class KEIYHLEY_6221():
     def user_query(self, string):
         ret = self.inst.query(string)
         return ret
-        
+    
+class KEITHLEY_2400():
+    def __init__(self, resource_name) -> None:
+        rm = pyvisa.ResourceManager()
+        self.inst = rm.open_resource(resource_name)
+        self.inst.write("*RST")
+        self.inst.write(":SYST:BEEP:STAT OFF")
 
+    def measure_only_volt(self, cmpl=1, rng=0.2, nplc=10):
+        self.inst.write(":SENS:VOLT:NPLC " + str(nplc))
+        self.inst.write(":SOUR:FUNC CURR")
+        self.inst.write(":SOUR:CURR:MODE FIXED")
+        self.inst.write(":SENS:FUNC 'VOLT'")
+        self.inst.write(":SOUR:CURR:RANG MIN")
+        self.inst.write(":SOUR:CURR:LEV 0")
+        self.inst.write(":SENS:VOLT:PROT " + str(cmpl))
+        self.inst.write(":SENS:VOLT:RANG " + str(rng))
+        self.inst.write(":FORM:ELEM VOLT")
+        self.inst.write(":OUTP ON")
 
+    def act_measure(self) -> float:
+        volt = self.inst.query(":READ?")
+        return float(volt)
 
 # =================================================================================================
 # moudule test code
 if __name__ == "__main__":
-    rm = pyvisa.ResourceManager()
-    print(rm.list_resources())
+    # rm = pyvisa.ResourceManager()
+    # print(rm.list_resources())
 
-    keiythley_2182 = KEIYHLEY_2182('GPIB0::1::INSTR')
-    keiythley_2182.set_range()
-    keiythley_2182.set_tco()
-    keiythley_2182.select_measure()
-    keiythley_2182.set_measure_parameter()
-    keiythley_2182.act_measure()
+    # keithley_2182 = KEITHLEY_2182('GPIB0::1::INSTR')
+    # keithley_2182.set_range()
+    # keithley_2182.set_tco()
+    # keithley_2182.select_measure()
+    # keithley_2182.set_measure_parameter()
+    # keithley_2182.act_measure()
+
+    keithley_2400 = KEITHLEY_2400('GPIB0::10::INSTR')
+    keithley_2400.measure_only_volt()
+    while True:
+        print(keithley_2400.act_measure())
